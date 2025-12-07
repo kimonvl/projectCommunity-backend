@@ -40,7 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
                     if (cookie.getName().equals("jwt")) {
                         token = cookie.getValue();
                         email = jwtService.extractEmail(token);
-                        request.setAttribute("email", email);
+                        System.out.println("email extracted");
                     }
                 }
             }
