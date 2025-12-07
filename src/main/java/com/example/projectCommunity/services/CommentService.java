@@ -1,0 +1,14 @@
+package com.example.projectCommunity.services;
+
+import com.example.projectCommunity.DTOs.requests.CreateCommentRequest;
+import com.example.projectCommunity.DTOs.response.CommentDTO;
+import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
+
+public interface CommentService {
+    ResponseEntity<ResponseDTO<CommentDTO>> createComment(CreateCommentRequest createCommentRequest, String email);
+
+    ResponseEntity<ResponseDTO<List<CommentDTO>>> getIssueComments(long issueId, String email);
+}
