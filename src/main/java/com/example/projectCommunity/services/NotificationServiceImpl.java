@@ -78,14 +78,14 @@ public class NotificationServiceImpl implements NotificationService{
     }
 
     @Override
-    public void markAsSeen(long notificationId) throws Exception {
+    public long markAsSeen(long notificationId) throws Exception {
         Optional<Notification> notificationOpt = notificationRepo.findById(notificationId);
         Notification notification;
         if (notificationOpt.isEmpty())
             throw new Exception("Notification not found");
         notification = notificationOpt.get();
         notification.setSeen(true);
-        notificationRepo.save(notification);
+        return notificationRepo.save(notification).getId();
     }
 
     @Override
@@ -93,6 +93,8 @@ public class NotificationServiceImpl implements NotificationService{
         ObjectMapper mapper = new ObjectMapper();
         User sender = userRepo.findByEmail(issueCreatedMetadata.getCreatorEmail());
         for (User receiver : receivers) {
+            System.out.println("Sending to: " + receiver.getEmail());
+
             if (receiver.equals(sender))
                 continue;
             Notification notification = new Notification();

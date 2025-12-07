@@ -1,3 +1,5 @@
 issue and comment controller and service and repo and redux slice and saga and selectors. UI is ready
 Issue: Mark as seen issueCreatedNotification on click. (delete update) send notifications for edit delete
 Comment: sendCommentCreatedNotification(new NotificationType) markAsSeenCommentCreatedNotification  delete edit send notifications for edit delete
+
+refactors: in services inconsistent returns , responseentity

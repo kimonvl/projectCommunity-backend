@@ -12,7 +12,7 @@ import java.util.Set;
 
 public interface NotificationService {
     ResponseEntity<ResponseDTO<List<NotificationDTO>>> getUnseenNotifications(String email);
-    void markAsSeen(long notificationId) throws Exception;
+    long markAsSeen(long notificationId) throws Exception;
     void sendProjectInviteNotification(List<User> receivers, User sender, Project project);
     void sendIssueCreatedNotification(IssueCreatedMetadata issueCreatedMetadata, Set<User> receivers);
 }
