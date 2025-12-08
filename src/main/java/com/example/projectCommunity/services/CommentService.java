@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface CommentService {
-    ResponseEntity<ResponseDTO<CommentDTO>> createComment(CreateCommentRequest createCommentRequest, String email);
+    CommentDTO createComment(CreateCommentRequest createCommentRequest, String email);
 
-    ResponseEntity<ResponseDTO<List<CommentDTO>>> getIssueComments(long issueId, String email);
+    List<CommentDTO> getIssueComments(long issueId, String email);
 }
