@@ -29,14 +29,12 @@ public class AuthServiceImpl implements AuthService{
     @Override
     public UserDTO register(User user) {
         User existingUser = userRepo.findByEmail(user.getEmail());
-        UserDTO userDTO = new UserDTO();
         if (existingUser != null) {
             throw new EmailAlreadyInUseException("Email already in use");
         }
         user.setPassword(encoder.encode(user.getPassword()));
         User newUSer = userRepo.save(user);
-        userDTO = userMapper.toDto(newUSer);
-        return userDTO;
+        return userMapper.toDto(newUSer);
     }
 
     @Override
