@@ -4,6 +4,8 @@ import com.example.projectCommunity.DTOs.requests.SendMessageRequest;
 import com.example.projectCommunity.DTOs.response.ChatDTO;
 import com.example.projectCommunity.DTOs.response.MessageDTO;
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import com.example.projectCommunity.exceptions.ChatNotFoundException;
+import com.example.projectCommunity.exceptions.UserNotFoundException;
 import com.example.projectCommunity.mappers.ChatMapper;
 import com.example.projectCommunity.mappers.MessageMapper;
 import com.example.projectCommunity.mappers.UserMapper;
@@ -15,6 +17,7 @@ import com.example.projectCommunity.repos.ChatRepo;
 import com.example.projectCommunity.repos.MessageRepo;
 import com.example.projectCommunity.repos.ProjectRepo;
 import com.example.projectCommunity.repos.UserRepo;
+import com.example.projectCommunity.services.serviceUtils.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,28 +48,25 @@ public class ChatServiceImpl implements ChatService {
     private SimpMessagingTemplate simpMessagingTemplate;
 
     @Override
-    public ResponseEntity<ResponseDTO<MessageDTO>> sendMessage(SendMessageRequest sendMessageRequest) {
+    public MessageDTO sendMessage(SendMessageRequest sendMessageRequest, String email) {
         Chat chat = chatRepo.findById(sendMessageRequest.getChatId());
-        Optional<User> senderOpt = userRepo.findById(sendMessageRequest.getSenderId());
+        User user = userRepo.findByEmail(email);
         if (chat == null) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Chat not found", false), HttpStatus.BAD_REQUEST);
+            throw new ChatNotFoundException("Chat not found");
         }
-        if (senderOpt.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User not found", false), HttpStatus.BAD_REQUEST);
+        if (user == null) {
+            throw new UserNotFoundException("User not found");
         }
-        User user = senderOpt.get();
-        Project project = projectRepo.findByChatId(sendMessageRequest.getChatId());
-        Boolean hasAccess = projectRepo.userHasAccessToProject(project.getId(), user.getEmail());
-        if (hasAccess == null || !hasAccess) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User does not have access to this project", false), HttpStatus.BAD_REQUEST);
-        }
+        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail());
+
         Message message = new Message();
         message.setChat(chat);
         message.setContent(sendMessageRequest.getContent());
         message.setSender(user);
         message.setTimestamp(LocalDateTime.now());
-
         Message savedMessage = messageRepo.save(message);
+//        chat.getMessages().add(savedMessage);
+//        chatRepo.save(chat);
         MessageDTO messageDTO = messageMapper.toDto(savedMessage);
 
         //Send the message to connected users throw websocket
@@ -75,25 +75,24 @@ public class ChatServiceImpl implements ChatService {
                 messageDTO
         );
 
-        return new ResponseEntity<>(new ResponseDTO<>(messageDTO, "Message sent", true), HttpStatus.CREATED);
+        return messageDTO;
     }
 
     @Override
-    public ResponseEntity<ResponseDTO<ChatDTO>> fetchActiveChat(long projectId, String email) {
+    public ChatDTO fetchActiveChat(long projectId, String email) {
         User user = userRepo.findByEmail(email);
         Chat chat = chatRepo.findByProjectId(projectId);
         ChatDTO chatDTO;
         if (user == null){
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User doesn't exist", false), HttpStatus.BAD_REQUEST);
+            throw new UserNotFoundException("User not found");
         }
         if (chat == null){
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Chat doesn't exist", false), HttpStatus.BAD_REQUEST);
+            throw new ChatNotFoundException("Chat not found");
         }
-        if (!chat.getProject().getParticipants().contains(user)) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User doesn't have access to this chat", false), HttpStatus.BAD_REQUEST);
-        }
+        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail());
+
         chatDTO = chatMapper.toDto(chat);
         chatDTO.setParticipants(chat.getProject().getParticipants().stream().map(userMapper:: toDto).collect(Collectors.toSet()));
-        return new ResponseEntity<>(new ResponseDTO<>(chatDTO, "Chat fetched", true), HttpStatus.ACCEPTED);
+        return chatDTO;
     }
 }

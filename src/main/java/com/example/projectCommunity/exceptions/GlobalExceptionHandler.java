@@ -24,4 +24,9 @@ public class GlobalExceptionHandler {
     ResponseEntity<ResponseDTO<?>> handleBadCredentialsSpring(AuthenticationException exception){
         return new ResponseEntity<>(new ResponseDTO<>(null, exception.getMessage(), false), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(ChatNotFoundException.class)
+    ResponseEntity<ResponseDTO<?>> handleChatNotFound(ChatNotFoundException exception){
+        return new ResponseEntity<>(new ResponseDTO<>(null, exception.getMessage(), false), HttpStatus.BAD_REQUEST);
+    }
 }
