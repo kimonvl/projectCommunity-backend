@@ -2,8 +2,10 @@ package com.example.projectCommunity.controllers;
 
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
 import com.example.projectCommunity.DTOs.response.UserDTO;
+import com.example.projectCommunity.controllers.controllerUtils.ResponseFactory;
 import com.example.projectCommunity.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +19,6 @@ public class UserController {
 
     @GetMapping("/search")
     public ResponseEntity<ResponseDTO<List<UserDTO>>> searchUsers(@RequestParam String emailQuery, @RequestParam long projectId) {
-        return userService.searchUsersByEmail(emailQuery, projectId);
+        return ResponseFactory.createSuccessResponse(userService.searchUsersByEmail(emailQuery, projectId), "Users fetched", HttpStatus.ACCEPTED);
     }
 }

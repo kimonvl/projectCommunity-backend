@@ -30,7 +30,6 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        System.out.println("filter");
         String token = null;
         String email = null;
 
@@ -40,7 +39,6 @@ public class JwtFilter extends OncePerRequestFilter {
                     if (cookie.getName().equals("jwt")) {
                         token = cookie.getValue();
                         email = jwtService.extractEmail(token);
-                        System.out.println("email extracted");
                     }
                 }
             }

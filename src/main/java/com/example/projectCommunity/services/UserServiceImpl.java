@@ -20,10 +20,9 @@ public class UserServiceImpl implements UserService{
     UserMapper userMapper;
 
     @Override
-    public ResponseEntity<ResponseDTO<List<UserDTO>>> searchUsersByEmail(String emailQuery, long projectId) {
+    public List<UserDTO> searchUsersByEmail(String emailQuery, long projectId) {
         List<User> users = userRepo.searchAvailableUsers(emailQuery, projectId);
-        List<UserDTO> userDTOs = userMapper.toDtoList(users);
-        return new ResponseEntity<>(new ResponseDTO<>(userDTOs, "Users fetched", true), HttpStatus.ACCEPTED);
+        return  userMapper.toDtoList(users);
     }
 }
 
