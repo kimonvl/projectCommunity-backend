@@ -57,7 +57,7 @@ public class ChatServiceImpl implements ChatService {
         if (user == null) {
             throw new UserNotFoundException("User not found");
         }
-        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail());
+        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
 
         Message message = new Message();
         message.setChat(chat);
@@ -65,8 +65,6 @@ public class ChatServiceImpl implements ChatService {
         message.setSender(user);
         message.setTimestamp(LocalDateTime.now());
         Message savedMessage = messageRepo.save(message);
-//        chat.getMessages().add(savedMessage);
-//        chatRepo.save(chat);
         MessageDTO messageDTO = messageMapper.toDto(savedMessage);
 
         //Send the message to connected users throw websocket
@@ -89,7 +87,7 @@ public class ChatServiceImpl implements ChatService {
         if (chat == null){
             throw new ChatNotFoundException("Chat not found");
         }
-        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail());
+        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
 
         chatDTO = chatMapper.toDto(chat);
         chatDTO.setParticipants(chat.getProject().getParticipants().stream().map(userMapper:: toDto).collect(Collectors.toSet()));

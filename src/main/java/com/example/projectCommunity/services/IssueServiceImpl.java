@@ -6,6 +6,9 @@ import com.example.projectCommunity.DTOs.requests.CreateIssueRequest;
 import com.example.projectCommunity.DTOs.response.IssueDTO;
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
 import com.example.projectCommunity.DTOs.response.UserDTO;
+import com.example.projectCommunity.exceptions.IssueNotFoundException;
+import com.example.projectCommunity.exceptions.ProjectNotFoundException;
+import com.example.projectCommunity.exceptions.UserNotFoundException;
 import com.example.projectCommunity.mappers.IssueMapper;
 import com.example.projectCommunity.mappers.UserMapper;
 import com.example.projectCommunity.models.issue.Issue;
@@ -16,10 +19,10 @@ import com.example.projectCommunity.models.user.User;
 import com.example.projectCommunity.repos.IssueRepo;
 import com.example.projectCommunity.repos.ProjectRepo;
 import com.example.projectCommunity.repos.UserRepo;
+import com.example.projectCommunity.services.serviceUtils.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,20 +45,18 @@ public class IssueServiceImpl implements IssueService{
 
 
     @Override
-    public ResponseEntity<ResponseDTO<IssueDTO>> createIssue(CreateIssueRequest createIssueRequest, String email) {
+    public IssueDTO createIssue(CreateIssueRequest createIssueRequest, String email) {
         User user = userRepo.findByEmail(email);
         Project project;
         Issue issue = new Issue();
         IssueDTO issueDTO;
         Optional<Project> projectOpt = projectRepo.findById(createIssueRequest.getProjectId());
         if (projectOpt.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Project not found", false), HttpStatus.BAD_REQUEST);
+            throw new ProjectNotFoundException("Project not found");
         }
 
         project =projectOpt.get();
-        if (!project.getParticipants().contains(user)) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User does not have access to this project", false), HttpStatus.BAD_REQUEST);
-        }
+        ServiceUtils.checkAccessToProject(projectRepo, project.getId(), user.getEmail(), "User doesn't have access to this project");
 
         issue.setTitle(createIssueRequest.getTitle());
         issue.setDescription(createIssueRequest.getDescription());
@@ -67,75 +68,57 @@ public class IssueServiceImpl implements IssueService{
 
         notificationService.sendIssueCreatedNotification(new IssueCreatedMetadata(user.getEmail(), project.getId(), issue.getId(), project.getTitle()), project.getParticipants());
 
-        return new ResponseEntity<>(new ResponseDTO<>(issueDTO, "Issue created", true), HttpStatus.CREATED);
+        return issueDTO;
     }
 
     @Override
-    public ResponseEntity<ResponseDTO<List<IssueDTO>>> getProjectIssues(long projectId, String email) {
-        Boolean hasAccess = projectRepo.userHasAccessToProject(projectId, email);
-        if (hasAccess == null || !hasAccess) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User does not have access to this project", false), HttpStatus.BAD_REQUEST);
-        }
-        List<Issue> issues = issueRepo.findByProjectId(projectId);
-        List<IssueDTO> issueDTOs = issueMapper.toDtoList(issues);
-        return new ResponseEntity<>(new ResponseDTO<>(issueDTOs, "Issues fetched", true), HttpStatus.ACCEPTED);
+    public List<IssueDTO> getProjectIssues(long projectId, String email) {
+        ServiceUtils.checkAccessToProject(projectRepo, projectId, email, "User doesn't have access to this project");
+        return issueMapper.toDtoList(issueRepo.findByProjectId(projectId));
     }
 
     @Override
-    public ResponseEntity<ResponseDTO<UserDTO>> assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email) {
+    public UserDTO assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(assignUserToIssueRequest.getIssueId());
         Optional<User> assignedUserOpt = userRepo.findById(assignUserToIssueRequest.getUserId());
         User assigneeUser = userRepo.findByEmail(email);
         if (issueOpt.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Issue doesn't exist", false), HttpStatus.BAD_REQUEST);
+            throw new IssueNotFoundException("Issue not found");
         }
         if (assignedUserOpt.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User doesn't exist", false), HttpStatus.BAD_REQUEST);
+            throw new UserNotFoundException("User not found");
         }
         User assignedUser = assignedUserOpt.get();
         Issue issue = issueOpt.get();
-        if (!issue.getProject().getParticipants().contains(assignedUser)) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Assigned User is not participant in project", false), HttpStatus.BAD_REQUEST);
-        }
-        if (!issue.getProject().getParticipants().contains(assigneeUser)) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "You don't have authority on this project", false), HttpStatus.BAD_REQUEST);
-        }
-        issue.getAssignedUsers().add(assignedUser);
-        issueRepo.save(issue);
-        UserDTO assignedUserDTO = userMapper.toDto(assignedUser);
-        return new ResponseEntity<>(new ResponseDTO<>(assignedUserDTO, "User assigned", true), HttpStatus.CREATED);
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assigneeUser.getEmail(), "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assignedUser.getEmail(), "Invited user doesn't have access to this project");
 
+        issue.getAssignedUsers().add(assignedUser);
+
+        issueRepo.save(issue);
+        return userMapper.toDto(assignedUser);
     }
 
     @Override
-    public ResponseEntity<ResponseDTO<IssueDTO>> getIssueDetails(long issueId, String email) {
+    public IssueDTO getIssueDetails(long issueId, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(issueId);
         if (issueOpt.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Issue not found", false), HttpStatus.BAD_REQUEST);
+            throw new IssueNotFoundException("Issue not found");
         }
         Issue issue = issueOpt.get();
-        Boolean hasAccess = projectRepo.userHasAccessToProject(issue.getProject().getId(), email);
-        if (hasAccess == null || !hasAccess) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User does not have access to this Issue", false), HttpStatus.BAD_REQUEST);
-        }
-        IssueDTO issueDTO = issueMapper.toDto(issue);
-        return new ResponseEntity<>(new ResponseDTO<>(issueDTO, "Issue details fetched", true), HttpStatus.ACCEPTED);
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), email, "User doesn't have access to project");
+        return issueMapper.toDto(issue);
     }
 
     @Override
-    public ResponseEntity<ResponseDTO<IssueDTO>> changeStatus(ChangeIssueStatusRequest changeIssueStatusRequest, String email) {
+    public IssueDTO changeStatus(ChangeIssueStatusRequest changeIssueStatusRequest, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(changeIssueStatusRequest.getIssueId());
         if (issueOpt.isEmpty()) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Issue doesn't exist", false), HttpStatus.BAD_REQUEST);
+            throw new IssueNotFoundException("Issue not found");
         }
         Issue issue = issueOpt.get();
-        Boolean hasAccess = projectRepo.userHasAccessToProject(issue.getProject().getId(), email);
-        if (hasAccess == null || !hasAccess) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "User does not have access to this Issue", false), HttpStatus.BAD_REQUEST);
-        }
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), email, "User doesn't have access to this project");
         issue.setStatus(changeIssueStatusRequest.getStatus());
-        issue = issueRepo.save(issue);
-        IssueDTO issueDTO = issueMapper.toDto(issue);
-        return new ResponseEntity<>(new ResponseDTO<>(issueDTO, "Status changed", true), HttpStatus.CREATED);
+        return issueMapper.toDto(issueRepo.save(issue));
     }
 }

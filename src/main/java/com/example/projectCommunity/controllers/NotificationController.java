@@ -23,7 +23,7 @@ public class NotificationController {
     }
 
     @PostMapping("/markAsSeen")
-    ResponseEntity<ResponseDTO<Long>> markAsSeen(long notificationId) {
+    ResponseEntity<ResponseDTO<Long>> markAsSeen(@RequestBody long notificationId) {
         try {
             Long notifId = notificationService.markAsSeen(notificationId);
             return new ResponseEntity<>(new ResponseDTO<>(notifId, "Notification marked seen", true), HttpStatus.CREATED);

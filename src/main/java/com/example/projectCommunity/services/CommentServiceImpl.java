@@ -42,7 +42,7 @@ public class CommentServiceImpl implements CommentService {
             throw new IssueNotFoundException("Issue not found");
         }
         Issue issue = issueOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail());
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
         Comment comment = new Comment();
         comment.setContent(createCommentRequest.getContent());
         comment.setAuthor(user);
@@ -59,7 +59,7 @@ public class CommentServiceImpl implements CommentService {
             throw new IssueNotFoundException("Issue not found");
         }
         Issue issue = issueOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail());
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
         return commentMapper.toDtoList(comments);
     }
 }
