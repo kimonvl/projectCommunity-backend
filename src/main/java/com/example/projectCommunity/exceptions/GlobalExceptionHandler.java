@@ -29,4 +29,9 @@ public class GlobalExceptionHandler {
     ResponseEntity<ResponseDTO<?>> handleChatNotFound(ChatNotFoundException exception){
         return new ResponseEntity<>(new ResponseDTO<>(null, exception.getMessage(), false), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(NotificationNotFoundException.class)
+    ResponseEntity<ResponseDTO<?>> handleNotificationNotFound(NotificationNotFoundException exception){
+        return new ResponseEntity<>(new ResponseDTO<>(null, exception.getMessage(), false), HttpStatus.BAD_REQUEST);
+    }
 }

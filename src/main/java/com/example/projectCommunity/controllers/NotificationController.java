@@ -2,6 +2,7 @@ package com.example.projectCommunity.controllers;
 
 import com.example.projectCommunity.DTOs.response.NotificationDTO;
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import com.example.projectCommunity.controllers.controllerUtils.ResponseFactory;
 import com.example.projectCommunity.services.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,18 +20,12 @@ public class NotificationController {
 
     @GetMapping("/getUnseenNotifications")
     ResponseEntity<ResponseDTO<List<NotificationDTO>>> getUnseenNotifications(Principal principal) {
-        return notificationService.getUnseenNotifications(principal.getName());
+        return ResponseFactory.createSuccessResponse(notificationService.getUnseenNotifications(principal.getName()), "Notifications fetched", HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/markAsSeen")
     ResponseEntity<ResponseDTO<Long>> markAsSeen(@RequestBody long notificationId) {
-        try {
-            Long notifId = notificationService.markAsSeen(notificationId);
-            return new ResponseEntity<>(new ResponseDTO<>(notifId, "Notification marked seen", true), HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(new ResponseDTO<>(null, "Notification not marked seen", false), HttpStatus.BAD_REQUEST);
-
-        }
+        return ResponseFactory.createSuccessResponse(notificationService.markAsSeen(notificationId), "Notification marked as seen", HttpStatus.CREATED);
     }
 
 }

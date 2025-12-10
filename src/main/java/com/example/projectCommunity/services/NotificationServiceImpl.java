@@ -2,6 +2,7 @@ package com.example.projectCommunity.services;
 
 import com.example.projectCommunity.DTOs.response.NotificationDTO;
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import com.example.projectCommunity.exceptions.NotificationNotFoundException;
 import com.example.projectCommunity.mappers.NotificationMapper;
 import com.example.projectCommunity.models.notification.IssueCreatedMetadata;
 import com.example.projectCommunity.models.notification.Notification;
@@ -71,18 +72,16 @@ public class NotificationServiceImpl implements NotificationService{
     }
 
     @Override
-    public ResponseEntity<ResponseDTO<List<NotificationDTO>>> getUnseenNotifications(String email) {
-        List<Notification> notifications = notificationRepo.findByReceiverEmailAndSeenFalse(email);
-        List<NotificationDTO> notificationDTOs = notificationMapper.toDtoList(notifications);
-        return new ResponseEntity<>(new ResponseDTO<>(notificationDTOs, "Notifications fetched", true), HttpStatus.ACCEPTED);
+    public List<NotificationDTO> getUnseenNotifications(String email) {
+        return notificationMapper.toDtoList(notificationRepo.findByReceiverEmailAndSeenFalse(email));
     }
 
     @Override
-    public long markAsSeen(long notificationId) throws Exception {
+    public long markAsSeen(long notificationId) {
         Optional<Notification> notificationOpt = notificationRepo.findById(notificationId);
         Notification notification;
         if (notificationOpt.isEmpty())
-            throw new Exception("Notification not found");
+            throw new NotificationNotFoundException("Notification not found");
         notification = notificationOpt.get();
         notification.setSeen(true);
         return notificationRepo.save(notification).getId();
