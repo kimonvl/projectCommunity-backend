@@ -2,6 +2,7 @@ package com.example.projectCommunity.controllers;
 
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
 import com.example.projectCommunity.DTOs.response.UserDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.controllers.controllerUtils.ResponseFactory;
 import com.example.projectCommunity.models.user.User;
 import com.example.projectCommunity.services.AuthService;
@@ -28,12 +29,11 @@ public class AuthController {
 //ToDo: change User to some kind of dto (RegisterLoginRequest)
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO<UserDTO>> register(@RequestBody User user) {
-        return ResponseFactory.createSuccessResponse(authService.register(user), "User registered", HttpStatus.CREATED);
+        return ResponseFactory.createSuccessResponse(authService.register(user), MessageConstants.REGISTERED, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO<UserDTO>> login(@RequestBody User user) {
-        System.out.println("Before login");
         UserDTO userDTO = authService.login(user);
         String jwt = jwtService.generateToken(userDTO.getEmail());
         System.out.println("after login");
@@ -44,7 +44,7 @@ public class AuthController {
                 .maxAge(24*60*60)
                 .sameSite("None")
                 .build();
-        return ResponseFactory.createSuccessResponse(userDTO, "Logged in successfully", HttpStatus.ACCEPTED, cookie);
+        return ResponseFactory.createSuccessResponse(userDTO, MessageConstants.LOGGED_IN, HttpStatus.ACCEPTED, cookie);
     }
 
     @PostMapping("/log-out")
@@ -57,11 +57,11 @@ public class AuthController {
                 .sameSite("None")
                 .build();
         SecurityContextHolder.clearContext();
-        return ResponseFactory.createSuccessResponse(null, "Logged out successfully", HttpStatus.ACCEPTED, cookie);
+        return ResponseFactory.createSuccessResponse(null, MessageConstants.LOGGED_OUT, HttpStatus.ACCEPTED, cookie);
     }
 
     @GetMapping("/isAuthenticated")
     public ResponseEntity<ResponseDTO<UserDTO>> isAuthenticated(Principal principal) {
-        return ResponseFactory.createSuccessResponse(authService.isAuthenticated(principal.getName()), "User is authenticated", HttpStatus.ACCEPTED);
+        return ResponseFactory.createSuccessResponse(authService.isAuthenticated(principal.getName()), MessageConstants.USER_IS_AUTHENTICATED, HttpStatus.ACCEPTED);
     }
 }

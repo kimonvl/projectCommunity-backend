@@ -1,6 +1,7 @@
 package com.example.projectCommunity.services;
 
 import com.example.projectCommunity.DTOs.response.UserDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.BadCredentialsException;
 import com.example.projectCommunity.exceptions.EmailAlreadyInUseException;
 import com.example.projectCommunity.exceptions.UserNotFoundException;
@@ -30,7 +31,7 @@ public class AuthServiceImpl implements AuthService{
     public UserDTO register(User user) {
         User existingUser = userRepo.findByEmail(user.getEmail());
         if (existingUser != null) {
-            throw new EmailAlreadyInUseException("Email already in use");
+            throw new EmailAlreadyInUseException(MessageConstants.EMAIL_ALREADY_IN_USE);
         }
         user.setPassword(encoder.encode(user.getPassword()));
         User newUSer = userRepo.save(user);
@@ -41,7 +42,7 @@ public class AuthServiceImpl implements AuthService{
     public UserDTO login(User user) {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (!auth.isAuthenticated()) {
-           throw new BadCredentialsException("Wrong email or password");
+           throw new BadCredentialsException(MessageConstants.WRONG_EMAIL_OR_PASSWORD);
         }
         User existingUser = userRepo.findByEmail(user.getEmail());
         return userMapper.toDto(existingUser);
@@ -51,7 +52,7 @@ public class AuthServiceImpl implements AuthService{
     public UserDTO isAuthenticated(String email) {
         User user = userRepo.findByEmail(email);
         if (user == null)
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
         return userMapper.toDto(user);
     }
 }

@@ -2,7 +2,7 @@ package com.example.projectCommunity.services;
 
 import com.example.projectCommunity.DTOs.requests.CreateProjectRequest;
 import com.example.projectCommunity.DTOs.response.ProjectDTO;
-import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.ProjectNotFoundException;
 import com.example.projectCommunity.exceptions.UserNotFoundException;
 import com.example.projectCommunity.mappers.ProjectMapper;
@@ -13,8 +13,6 @@ import com.example.projectCommunity.repos.ProjectRepo;
 import com.example.projectCommunity.repos.UserRepo;
 import com.example.projectCommunity.services.serviceUtils.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,7 +33,7 @@ public class ProjectServiceImpl implements ProjectService{
     public ProjectDTO createProject(CreateProjectRequest createProjectRequest, String email) {
         User user = userRepo.findByEmail(email);
         if (user == null){
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
         }
 
         Project project = new Project();
@@ -66,10 +64,10 @@ public class ProjectServiceImpl implements ProjectService{
         Project project;
         Optional<Project> projectOpt = projectRepo.findById(projectId);
         if (projectOpt.isEmpty()) {
-            throw new ProjectNotFoundException("Project not found");
+            throw new ProjectNotFoundException(MessageConstants.PROJECT_NOT_FOUND);
         }
         project = projectOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo,project.getId(), user.getEmail(), "User doesn't have access to project");
+        ServiceUtils.checkAccessToProject(projectRepo,project.getId(), user.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
         return projectMapper.toDto(project);
     }
 
@@ -80,7 +78,7 @@ public class ProjectServiceImpl implements ProjectService{
         Project project;
         ProjectDTO projectDTO;
         if(projectOpt.isEmpty()) {
-            throw new ProjectNotFoundException("Project not found");
+            throw new ProjectNotFoundException(MessageConstants.PROJECT_NOT_FOUND);
         }
         notificationService.markAsSeen(notificationId);
 
@@ -96,7 +94,7 @@ public class ProjectServiceImpl implements ProjectService{
         Optional<Project> projectOpt = projectRepo.findById(projectId);
         Project project;
         if (projectOpt.isEmpty()) {
-            throw new ProjectNotFoundException("Project not found");
+            throw new ProjectNotFoundException(MessageConstants.PROJECT_NOT_FOUND);
         }
         project = projectOpt.get();
         notificationService.sendProjectInviteNotification(receivers, sender, project);

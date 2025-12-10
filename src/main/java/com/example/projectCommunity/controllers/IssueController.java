@@ -6,6 +6,7 @@ import com.example.projectCommunity.DTOs.requests.CreateIssueRequest;
 import com.example.projectCommunity.DTOs.response.IssueDTO;
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
 import com.example.projectCommunity.DTOs.response.UserDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.controllers.controllerUtils.ResponseFactory;
 import com.example.projectCommunity.services.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +26,26 @@ public class IssueController {
 
     @PostMapping("/create")
     ResponseEntity<ResponseDTO<IssueDTO>> createIssue(@RequestBody CreateIssueRequest createIssueRequest, Principal principal) {
-        return ResponseFactory.createSuccessResponse(issueService.createIssue(createIssueRequest, principal.getName()), "Issue created", HttpStatus.CREATED);
+        return ResponseFactory.createSuccessResponse(issueService.createIssue(createIssueRequest, principal.getName()), MessageConstants.ISSUE_CREATED, HttpStatus.CREATED);
     }
 
     @GetMapping("/getProjectIssues/{projectId}")
     ResponseEntity<ResponseDTO<List<IssueDTO>>> getProjectIssues(@PathVariable long projectId, Principal principal) {
-        return ResponseFactory.createSuccessResponse(issueService.getProjectIssues(projectId, principal.getName()), "Issues fetched", HttpStatus.ACCEPTED);
+        return ResponseFactory.createSuccessResponse(issueService.getProjectIssues(projectId, principal.getName()), MessageConstants.ISSUES_FETCHED, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/assignUser")
     ResponseEntity<ResponseDTO<UserDTO>> assignUser(@RequestBody AssignUserToIssueRequest assignUserToIssueRequest, Principal principal) {
-        return ResponseFactory.createSuccessResponse(issueService.assignUser(assignUserToIssueRequest, principal.getName()), "User assigned to issue", HttpStatus.CREATED);
+        return ResponseFactory.createSuccessResponse(issueService.assignUser(assignUserToIssueRequest, principal.getName()), MessageConstants.USER_ASSIGNED_TO_ISSUE, HttpStatus.CREATED);
     }
 
     @GetMapping("/getIssueDetails/{issueId}")
     ResponseEntity<ResponseDTO<IssueDTO>> getIssueDetails(@PathVariable long issueId, Principal principal) {
-        return ResponseFactory.createSuccessResponse(issueService.getIssueDetails(issueId, principal.getName()), "Issue fetched", HttpStatus.ACCEPTED);
+        return ResponseFactory.createSuccessResponse(issueService.getIssueDetails(issueId, principal.getName()), MessageConstants.ISSUE_FETCHED, HttpStatus.ACCEPTED);
     }
 
     @PostMapping("/changeStatus")
     ResponseEntity<ResponseDTO<IssueDTO>> changeStatus(@RequestBody ChangeIssueStatusRequest changeIssueStatusRequest, Principal principal) {
-        return ResponseFactory.createSuccessResponse(issueService.changeStatus(changeIssueStatusRequest, principal.getName()), "Status changed", HttpStatus.CREATED);
+        return ResponseFactory.createSuccessResponse(issueService.changeStatus(changeIssueStatusRequest, principal.getName()), MessageConstants.ISSUE_STATUS_CHANGED, HttpStatus.CREATED);
     }
 }

@@ -4,8 +4,8 @@ import com.example.projectCommunity.DTOs.requests.AssignUserToIssueRequest;
 import com.example.projectCommunity.DTOs.requests.ChangeIssueStatusRequest;
 import com.example.projectCommunity.DTOs.requests.CreateIssueRequest;
 import com.example.projectCommunity.DTOs.response.IssueDTO;
-import com.example.projectCommunity.DTOs.response.ResponseDTO;
 import com.example.projectCommunity.DTOs.response.UserDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.IssueNotFoundException;
 import com.example.projectCommunity.exceptions.ProjectNotFoundException;
 import com.example.projectCommunity.exceptions.UserNotFoundException;
@@ -21,8 +21,6 @@ import com.example.projectCommunity.repos.ProjectRepo;
 import com.example.projectCommunity.repos.UserRepo;
 import com.example.projectCommunity.services.serviceUtils.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -52,11 +50,11 @@ public class IssueServiceImpl implements IssueService{
         IssueDTO issueDTO;
         Optional<Project> projectOpt = projectRepo.findById(createIssueRequest.getProjectId());
         if (projectOpt.isEmpty()) {
-            throw new ProjectNotFoundException("Project not found");
+            throw new ProjectNotFoundException(MessageConstants.PROJECT_NOT_FOUND);
         }
 
         project =projectOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, project.getId(), user.getEmail(), "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, project.getId(), user.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
 
         issue.setTitle(createIssueRequest.getTitle());
         issue.setDescription(createIssueRequest.getDescription());
@@ -66,14 +64,14 @@ public class IssueServiceImpl implements IssueService{
         issue = issueRepo.save(issue);
         issueDTO = issueMapper.toDto(issue);
 
-        notificationService.sendIssueCreatedNotification(new IssueCreatedMetadata(user.getEmail(), project.getId(), issue.getId(), project.getTitle()), project.getParticipants());
+        notificationService.sendIssueCreatedNotifications(new IssueCreatedMetadata(user.getEmail(), project.getId(), issue.getId(), project.getTitle()), project.getParticipants());
 
         return issueDTO;
     }
 
     @Override
     public List<IssueDTO> getProjectIssues(long projectId, String email) {
-        ServiceUtils.checkAccessToProject(projectRepo, projectId, email, "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, projectId, email, MessageConstants.USER_NOT_IN_PROJECT);
         return issueMapper.toDtoList(issueRepo.findByProjectId(projectId));
     }
 
@@ -83,15 +81,15 @@ public class IssueServiceImpl implements IssueService{
         Optional<User> assignedUserOpt = userRepo.findById(assignUserToIssueRequest.getUserId());
         User assigneeUser = userRepo.findByEmail(email);
         if (issueOpt.isEmpty()) {
-            throw new IssueNotFoundException("Issue not found");
+            throw new IssueNotFoundException(MessageConstants.ISSUE_NOT_FOUND);
         }
         if (assignedUserOpt.isEmpty()) {
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
         }
         User assignedUser = assignedUserOpt.get();
         Issue issue = issueOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assigneeUser.getEmail(), "User doesn't have access to this project");
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assignedUser.getEmail(), "Invited user doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assigneeUser.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assignedUser.getEmail(), MessageConstants.INVITED_USER_NOT_IN_PROJECT);
 
         issue.getAssignedUsers().add(assignedUser);
 
@@ -103,10 +101,10 @@ public class IssueServiceImpl implements IssueService{
     public IssueDTO getIssueDetails(long issueId, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(issueId);
         if (issueOpt.isEmpty()) {
-            throw new IssueNotFoundException("Issue not found");
+            throw new IssueNotFoundException(MessageConstants.ISSUE_NOT_FOUND);
         }
         Issue issue = issueOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), email, "User doesn't have access to project");
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), email, MessageConstants.USER_NOT_IN_PROJECT);
         return issueMapper.toDto(issue);
     }
 
@@ -114,10 +112,10 @@ public class IssueServiceImpl implements IssueService{
     public IssueDTO changeStatus(ChangeIssueStatusRequest changeIssueStatusRequest, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(changeIssueStatusRequest.getIssueId());
         if (issueOpt.isEmpty()) {
-            throw new IssueNotFoundException("Issue not found");
+            throw new IssueNotFoundException(MessageConstants.ISSUE_NOT_FOUND);
         }
         Issue issue = issueOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), email, "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), email, MessageConstants.USER_NOT_IN_PROJECT);
         issue.setStatus(changeIssueStatusRequest.getStatus());
         return issueMapper.toDto(issueRepo.save(issue));
     }

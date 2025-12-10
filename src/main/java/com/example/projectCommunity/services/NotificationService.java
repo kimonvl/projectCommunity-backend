@@ -12,5 +12,5 @@ public interface NotificationService {
     List<NotificationDTO> getUnseenNotifications(String email);
     long markAsSeen(long notificationId);
     void sendProjectInviteNotification(List<User> receivers, User sender, Project project);
-    void sendIssueCreatedNotification(IssueCreatedMetadata issueCreatedMetadata, Set<User> receivers);
+    void sendIssueCreatedNotifications(IssueCreatedMetadata issueCreatedMetadata, Set<User> receivers);
 }

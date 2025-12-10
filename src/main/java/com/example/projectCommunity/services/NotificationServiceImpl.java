@@ -1,8 +1,9 @@
 package com.example.projectCommunity.services;
 
 import com.example.projectCommunity.DTOs.response.NotificationDTO;
-import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.NotificationNotFoundException;
+import com.example.projectCommunity.exceptions.UserNotFoundException;
 import com.example.projectCommunity.mappers.NotificationMapper;
 import com.example.projectCommunity.models.notification.IssueCreatedMetadata;
 import com.example.projectCommunity.models.notification.Notification;
@@ -16,8 +17,6 @@ import com.example.projectCommunity.repos.UserRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -45,8 +44,7 @@ public class NotificationServiceImpl implements NotificationService{
 
         for (User receiver : receivers) {
             if (receiver == null) {
-                new ResponseEntity<>(new ResponseDTO<>(null, "Receiver not found", false), HttpStatus.BAD_REQUEST);
-                return;
+                throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
             }
             notification.setSender(sender);
             notification.setReceiver(receiver);
@@ -68,7 +66,6 @@ public class NotificationServiceImpl implements NotificationService{
                     notificationMapper.toDto(notification)
             );
         }
-        new ResponseEntity<>(new ResponseDTO<>(null, "Invitation sent", true), HttpStatus.CREATED);
     }
 
     @Override
@@ -81,19 +78,20 @@ public class NotificationServiceImpl implements NotificationService{
         Optional<Notification> notificationOpt = notificationRepo.findById(notificationId);
         Notification notification;
         if (notificationOpt.isEmpty())
-            throw new NotificationNotFoundException("Notification not found");
+            throw new NotificationNotFoundException(MessageConstants.NOTIFICATION_NOT_FOUND);
         notification = notificationOpt.get();
         notification.setSeen(true);
         return notificationRepo.save(notification).getId();
     }
 
     @Override
-    public void sendIssueCreatedNotification(IssueCreatedMetadata issueCreatedMetadata, Set<User> receivers) {
+    public void sendIssueCreatedNotifications(IssueCreatedMetadata issueCreatedMetadata, Set<User> receivers) {
         ObjectMapper mapper = new ObjectMapper();
         User sender = userRepo.findByEmail(issueCreatedMetadata.getCreatorEmail());
         for (User receiver : receivers) {
-            System.out.println("Sending to: " + receiver.getEmail());
-
+            if (receiver == null) {
+                throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
+            }
             if (receiver.equals(sender))
                 continue;
             Notification notification = new Notification();
@@ -107,7 +105,6 @@ public class NotificationServiceImpl implements NotificationService{
                 throw new RuntimeException(e);
             }
             NotificationDTO notificationDto = notificationMapper.toDto(notificationRepo.save(notification));
-            System.out.println("sending invitation");
             simpMessagingTemplate.convertAndSendToUser(
                     receiver.getEmail(),
                     "queue/notifications",

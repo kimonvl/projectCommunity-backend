@@ -4,6 +4,7 @@ import com.example.projectCommunity.DTOs.requests.SendMessageRequest;
 import com.example.projectCommunity.DTOs.response.ChatDTO;
 import com.example.projectCommunity.DTOs.response.MessageDTO;
 import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.ChatNotFoundException;
 import com.example.projectCommunity.exceptions.UserNotFoundException;
 import com.example.projectCommunity.mappers.ChatMapper;
@@ -52,12 +53,12 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepo.findById(sendMessageRequest.getChatId());
         User user = userRepo.findByEmail(email);
         if (chat == null) {
-            throw new ChatNotFoundException("Chat not found");
+            throw new ChatNotFoundException(MessageConstants.CHAT_NOT_FOUND);
         }
         if (user == null) {
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
         }
-        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
 
         Message message = new Message();
         message.setChat(chat);
@@ -82,12 +83,12 @@ public class ChatServiceImpl implements ChatService {
         Chat chat = chatRepo.findByProjectId(projectId);
         ChatDTO chatDTO;
         if (user == null){
-            throw new UserNotFoundException("User not found");
+            throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
         }
         if (chat == null){
-            throw new ChatNotFoundException("Chat not found");
+            throw new ChatNotFoundException(MessageConstants.CHAT_NOT_FOUND);
         }
-        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, chat.getProject().getId(), user.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
 
         chatDTO = chatMapper.toDto(chat);
         chatDTO.setParticipants(chat.getProject().getParticipants().stream().map(userMapper:: toDto).collect(Collectors.toSet()));

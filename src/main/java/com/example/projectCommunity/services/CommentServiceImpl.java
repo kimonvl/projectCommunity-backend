@@ -2,7 +2,7 @@ package com.example.projectCommunity.services;
 
 import com.example.projectCommunity.DTOs.requests.CreateCommentRequest;
 import com.example.projectCommunity.DTOs.response.CommentDTO;
-import com.example.projectCommunity.DTOs.response.ResponseDTO;
+import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.IssueNotFoundException;
 import com.example.projectCommunity.mappers.CommentMapper;
 import com.example.projectCommunity.models.comment.Comment;
@@ -14,8 +14,6 @@ import com.example.projectCommunity.repos.ProjectRepo;
 import com.example.projectCommunity.repos.UserRepo;
 import com.example.projectCommunity.services.serviceUtils.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,10 +37,10 @@ public class CommentServiceImpl implements CommentService {
         User user = userRepo.findByEmail(email);
         Optional<Issue> issueOpt = issueRepo.findById(createCommentRequest.getIssueId());
         if (issueOpt.isEmpty()) {
-            throw new IssueNotFoundException("Issue not found");
+            throw new IssueNotFoundException(MessageConstants.ISSUE_NOT_FOUND);
         }
         Issue issue = issueOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
         Comment comment = new Comment();
         comment.setContent(createCommentRequest.getContent());
         comment.setAuthor(user);
@@ -56,10 +54,10 @@ public class CommentServiceImpl implements CommentService {
         List<Comment> comments = commentRepo.findByIssueId(issueId);
         Optional<Issue> issueOpt = issueRepo.findById(issueId);
         if (issueOpt.isEmpty()) {
-            throw new IssueNotFoundException("Issue not found");
+            throw new IssueNotFoundException(MessageConstants.ISSUE_NOT_FOUND);
         }
         Issue issue = issueOpt.get();
-        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail(), "User doesn't have access to this project");
+        ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
         return commentMapper.toDtoList(comments);
     }
 }
