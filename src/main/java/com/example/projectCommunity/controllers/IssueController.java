@@ -48,4 +48,9 @@ public class IssueController {
     ResponseEntity<ResponseDTO<IssueDTO>> changeStatus(@RequestBody ChangeIssueStatusRequest changeIssueStatusRequest, Principal principal) {
         return ResponseFactory.createSuccessResponse(issueService.changeStatus(changeIssueStatusRequest, principal.getName()), MessageConstants.ISSUE_STATUS_CHANGED, HttpStatus.CREATED);
     }
+
+    @PostMapping("/delete")
+    ResponseEntity<ResponseDTO<Long>> changeStatus(@RequestBody long issueId, Principal principal) {
+        return ResponseFactory.createSuccessResponse(issueService.deleteIssue(issueId, principal.getName()), MessageConstants.ISSUE_DELETED, HttpStatus.CREATED);
+    }
 }

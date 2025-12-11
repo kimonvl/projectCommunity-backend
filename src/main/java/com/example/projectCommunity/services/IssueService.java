@@ -14,4 +14,5 @@ public interface IssueService {
     UserDTO assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email);
     IssueDTO getIssueDetails(long issueId, String email);
     IssueDTO changeStatus(ChangeIssueStatusRequest changeIssueStatusRequest, String email);
+    Long deleteIssue(long issueId, String email);
 }

@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
+/**
+ * Rest controller responsible for the authentication endpoints implementing the jwt stateless authentication.
+ * */
 @RestController
 public class AuthController {
     @Autowired
@@ -27,10 +30,18 @@ public class AuthController {
     @Autowired
     JwtService jwtService;
 //ToDo: change User to some kind of dto (RegisterLoginRequest)
+
+    /**
+     * Create a new account for user with given credentials.
+     *
+     * @param user email and password in a {@link User} object.
+     * @return {@link ResponseEntity} http response with registered user attached {@link UserDTO}.
+     * */
     @PostMapping("/register")
     public ResponseEntity<ResponseDTO<UserDTO>> register(@RequestBody User user) {
         return ResponseFactory.createSuccessResponse(authService.register(user), MessageConstants.REGISTERED, HttpStatus.CREATED);
     }
+
 
     @PostMapping("/login")
     public ResponseEntity<ResponseDTO<UserDTO>> login(@RequestBody User user) {

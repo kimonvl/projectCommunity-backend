@@ -8,6 +8,7 @@ import com.example.projectCommunity.DTOs.response.UserDTO;
 import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.IssueNotFoundException;
 import com.example.projectCommunity.exceptions.ProjectNotFoundException;
+import com.example.projectCommunity.exceptions.UserNoAccessException;
 import com.example.projectCommunity.exceptions.UserNotFoundException;
 import com.example.projectCommunity.mappers.IssueMapper;
 import com.example.projectCommunity.mappers.UserMapper;
@@ -118,5 +119,21 @@ public class IssueServiceImpl implements IssueService{
         ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), email, MessageConstants.USER_NOT_IN_PROJECT);
         issue.setStatus(changeIssueStatusRequest.getStatus());
         return issueMapper.toDto(issueRepo.save(issue));
+    }
+
+    public Long deleteIssue(long issueId, String email) {
+        System.out.println(issueId);
+        User user = userRepo.findByEmail(email);
+        Optional<Issue> issueOpt = issueRepo.findById(issueId);
+        if (issueOpt.isEmpty()) {
+            throw new IssueNotFoundException(MessageConstants.ISSUE_NOT_FOUND);
+        }
+        Issue issue = issueOpt.get();
+        if (issue.getCreator().getId() != user.getId()) {
+            throw new UserNoAccessException(MessageConstants.USER_NO_ACCESS_TO_ISSUE);
+        }
+        Long deletedId = issue.getId();
+        issueRepo.delete(issue);
+        return deletedId;
     }
 }

@@ -19,6 +19,7 @@ public class MessageConstants {
     public static final String COMMENT_CREATED = "Comment created";
     public static final String COMMENTS_FETCHED = "Comments fetched";
     public static final String ISSUE_CREATED = "Issue created";
+    public static final String ISSUE_DELETED = "Issue deleted";
     public static final String ISSUES_FETCHED = "Issues fetched";
     public static final String USER_ASSIGNED_TO_ISSUE = "User assigned to issue";
     public static final String ISSUE_FETCHED = "Issue fetched";
@@ -31,5 +32,6 @@ public class MessageConstants {
     public static final String PROJECT_INVITATION_SENT = "Project invitation sent";
     public static final String PROJECT_INVITATION_ACCEPT = "Project invitation accepted";
     public static final String USERS_FETCHED = "Users fetched";
+    public static final String USER_NO_ACCESS_TO_ISSUE = "User has no access to issue";
 
 }
