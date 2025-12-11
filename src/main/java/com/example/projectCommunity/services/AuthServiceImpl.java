@@ -15,6 +15,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+/**
+ * Implementation of {@link AuthService}.
+ * */
 @Service
 public class AuthServiceImpl implements AuthService{
     @Autowired
@@ -27,6 +30,9 @@ public class AuthServiceImpl implements AuthService{
     private AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public UserDTO register(User user) {
         User existingUser = userRepo.findByEmail(user.getEmail());
