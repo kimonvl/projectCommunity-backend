@@ -19,6 +19,12 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+/**
+ * Spring security configuration.
+ *
+ * <p>Configures the application's authorization, authentication, and CORS policies.
+ * Integrates a stateless JWT based authentication through {@link JwtFilter} which is applied on every request.</p>
+ * */
 @Configuration
 @EnableWebSecurity
 public class Config {
@@ -28,6 +34,13 @@ public class Config {
     @Autowired
     private JwtFilter jwtFilter;
 
+    /**
+     * Configures security filter chain by, adding CORS CSRF policies, disabling default login form,
+     * adding endpoint authorization rules, and placing the {@link JwtFilter} in the filter chain.
+     *
+     * @param http {@link HttpSecurity} builder used to customize web security.
+     * @return The configured {@link SecurityFilterChain} instance.
+     * */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(customizer -> customizer.disable());
@@ -44,6 +57,13 @@ public class Config {
         return http.build();
     }
 
+    /**
+     * Sets the authentication provider as {@link DaoAuthenticationProvider} for database authentication,
+     * using {@link UserDetailsService} to fetch the data and
+     * using {@link BCryptPasswordEncoder} to verify the password
+     *
+     * @return The configured authentication provider
+     * */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -52,11 +72,25 @@ public class Config {
         return provider;
     }
 
+    /**
+     * Exposes the {@link AuthenticationManager} used by the authentication process.
+     *
+     * @param config Authentication configuration.
+     * @return The authentication manager that stores the authentication state.
+     * @throws {@link Exception}
+     * */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Defines CORS configuration for the application, enabling cross-origin
+     * requests from allowed frontend clients and permitting credentials as required
+     * for JWT cookie-based authentication.
+     *
+     * @return the configured {@link CorsConfigurationSource}
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();

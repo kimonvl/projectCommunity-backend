@@ -1,5 +1,6 @@
 package com.example.projectCommunity.config.Filters;
 
+import com.example.projectCommunity.services.JwtService;
 import com.example.projectCommunity.services.JwtServiceImpl;
 import com.example.projectCommunity.services.MyUserDetailsService;
 import jakarta.servlet.FilterChain;
@@ -19,14 +20,31 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+/**
+ * Servlet filter responsible for extracting, validating the JWT token from incoming requests.
+ *
+ * <p>Runs once per request before the username and password authentication and uses
+ * {@link JwtService} {@link MyUserDetailsService} to process and validate the token.
+ * If it's valid set the security context with a validated {@link UsernamePasswordAuthenticationToken}</p>
+ * */
 @Component
 public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
-    private JwtServiceImpl jwtService;
+    private JwtService jwtService;
     @Autowired
     private MyUserDetailsService myUserDetailsService;
 
+    /**
+     * Processes the request attempting to extract and validate the jwt, granting access in case of a valid token,
+     * not granting access and clearing the cookies in case of an invalid one.
+     *
+     * @param request      the incoming HTTP request
+     * @param response     the HTTP response to modify if necessary
+     * @param filterChain  the remaining filter chain to execute
+     * @throws ServletException if the filter fails during processing
+     * @throws IOException      if I/O errors occur during filtering
+     * */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -63,6 +81,12 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    /**
+     * Clears the JWT cookie from the client by issuing a Set-Cookie header
+     * with an expired, empty cookie. Used when token validation fails.
+     *
+     * @param response the HTTP response to which the clearing cookie is added
+     */
     private void clearJwtCookie(HttpServletResponse response) {
         ResponseCookie clearedCookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
