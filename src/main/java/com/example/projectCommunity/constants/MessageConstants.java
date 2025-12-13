@@ -1,5 +1,11 @@
 package com.example.projectCommunity.constants;
 
+/**
+ * A collection of messages used repeatedly across the application.
+ *
+ * <p>This class defines immutable message constants used in exceptions and in http responses.</p>
+ * */
+
 public class MessageConstants {
     public static final String USER_NOT_FOUND = "User not found";
     public static final String PROJECT_NOT_FOUND = "Project not found";

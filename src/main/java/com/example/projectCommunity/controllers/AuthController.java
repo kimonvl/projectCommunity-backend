@@ -8,7 +8,6 @@ import com.example.projectCommunity.models.user.User;
 import com.example.projectCommunity.services.AuthService;
 import com.example.projectCommunity.services.JwtService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +23,7 @@ import java.security.Principal;
  * Rest controller responsible for the authentication endpoints. It handles
  * registration, login, logout, authentication state check.
  *
- * <p>Implements a stateless jwt authentication system by attaching jwt in response cookie.</p>
+ * <p>Implements a stateless jwt authentication system by attaching jwt in response cookie during login.</p>
  * */
 @RestController
 public class AuthController {
