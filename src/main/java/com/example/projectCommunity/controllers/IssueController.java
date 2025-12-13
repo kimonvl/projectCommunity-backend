@@ -56,7 +56,7 @@ public class IssueController {
      *
      * @param projectId identifier of the project whose issues are requested.
      * @param principal the authenticated user's data, that requests the issues,  provided by Spring Security.
-     * @return http response containing the retrieved {@link List<IssueDTO>}.
+     * @return http response containing the retrieved list of {@link IssueDTO}.
      * */
     @GetMapping("/getProjectIssues/{projectId}")
     ResponseEntity<ResponseDTO<List<IssueDTO>>> getProjectIssues(@PathVariable long projectId, Principal principal) {

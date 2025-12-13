@@ -48,7 +48,7 @@ public class CommentController {
      *
      * @param issueId identifier of the issue whose comments are requested.
      * @param principal the authenticated user's data, that requested the comment history,  provided by Spring Security.
-     * @return http response containing the requested {@link List<CommentDTO>}.
+     * @return http response containing the requested list of {@link CommentDTO}.
      * */
     @GetMapping("/getIssueComments/{issueId}")
     ResponseEntity<ResponseDTO<List<CommentDTO>>> getIssueComments(@PathVariable long issueId, Principal principal) {

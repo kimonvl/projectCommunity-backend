@@ -33,7 +33,7 @@ public class NotificationController {
      * Retrieves the unseen {@link Notification}s of a user.
      *
      * @param principal the authenticated user's data, that is requesting the unseen notifications,  provided by Spring Security.
-     * @return http response containing the retrieved {@link List<NotificationDTO>}.
+     * @return http response containing the retrieved list of {@link NotificationDTO}.
      * */
     @GetMapping("/getUnseenNotifications")
     ResponseEntity<ResponseDTO<List<NotificationDTO>>> getUnseenNotifications(Principal principal) {

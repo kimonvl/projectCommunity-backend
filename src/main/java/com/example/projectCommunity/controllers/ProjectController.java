@@ -51,7 +51,7 @@ public class ProjectController {
      * Retrieves the {@link Project}s that a specific {@link User} is participating.
      *
      * @param principal the authenticated user's data, that is requesting the projects,  provided by Spring Security.
-     * @return http response containing the retrieved {@link List<ProjectDTO>}.
+     * @return http response containing the retrieved list of {@link ProjectDTO}.
      * */
     @GetMapping("/myProjects")
     public ResponseEntity<ResponseDTO<List<ProjectDTO>>> getMyProjects(Principal principal) {

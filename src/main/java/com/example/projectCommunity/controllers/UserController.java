@@ -31,7 +31,7 @@ public class UserController {
      *
      * @param emailQuery the search parameter.
      * @param projectId identifier of the project to invite to.
-     * @return http response containing the retrieved {@link List<UserDTO>}.
+     * @return http response containing the retrieved list of {@link UserDTO}.
      * */
     @GetMapping("/search")
     public ResponseEntity<ResponseDTO<List<UserDTO>>> searchUsers(@RequestParam String emailQuery, @RequestParam long projectId) {
