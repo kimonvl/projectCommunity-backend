@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 
 /**
  * Implementation of {@link AuthService}.
+ *
+ * <p>This service handles user registration and authentication using
+ * Spring Security and JWt-based mechanisms.</p>
  * */
 @Service
 public class AuthServiceImpl implements AuthService{
@@ -44,6 +47,9 @@ public class AuthServiceImpl implements AuthService{
         return userMapper.toDto(newUSer);
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public UserDTO login(User user) {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
@@ -54,6 +60,9 @@ public class AuthServiceImpl implements AuthService{
         return userMapper.toDto(existingUser);
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public UserDTO isAuthenticated(String email) {
         User user = userRepo.findByEmail(email);

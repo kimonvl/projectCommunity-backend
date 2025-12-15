@@ -19,12 +19,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementation of {@link CommentService}.
+ * */
 @Service
 public class CommentServiceImpl implements CommentService {
+
+    //Repos
     @Autowired
     CommentRepo commentRepo;
-    @Autowired
-    CommentMapper commentMapper;
     @Autowired
     UserRepo userRepo;
     @Autowired
@@ -32,6 +35,13 @@ public class CommentServiceImpl implements CommentService {
     @Autowired
     ProjectRepo projectRepo;
 
+    //Mappers
+    @Autowired
+    CommentMapper commentMapper;
+
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public CommentDTO createComment(CreateCommentRequest createCommentRequest, String email) {
         User user = userRepo.findByEmail(email);
@@ -48,14 +58,17 @@ public class CommentServiceImpl implements CommentService {
         return commentMapper.toDto(commentRepo.save(comment));
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public List<CommentDTO> getIssueComments(long issueId, String email) {
         User user = userRepo.findByEmail(email);
-        List<Comment> comments = commentRepo.findByIssueId(issueId);
         Optional<Issue> issueOpt = issueRepo.findById(issueId);
         if (issueOpt.isEmpty()) {
             throw new IssueNotFoundException(MessageConstants.ISSUE_NOT_FOUND);
         }
+        List<Comment> comments = commentRepo.findByIssueId(issueId);
         Issue issue = issueOpt.get();
         ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), user.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
         return commentMapper.toDtoList(comments);

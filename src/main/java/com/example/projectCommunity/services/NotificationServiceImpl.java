@@ -12,7 +12,6 @@ import com.example.projectCommunity.models.notification.ProjectInviteMetadata;
 import com.example.projectCommunity.models.project.Project;
 import com.example.projectCommunity.models.user.User;
 import com.example.projectCommunity.repos.NotificationRepo;
-import com.example.projectCommunity.repos.ProjectRepo;
 import com.example.projectCommunity.repos.UserRepo;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,28 +23,42 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * Implementation of {@link NotificationService}.
+ * */
 @Service
 public class NotificationServiceImpl implements NotificationService{
+
+    //Repos
     @Autowired
     UserRepo userRepo;
     @Autowired
-    ProjectRepo projectRepo;
-    @Autowired
     NotificationRepo notificationRepo;
+
+    //Mappers
     @Autowired
     NotificationMapper notificationMapper;
+
+    //Messaging
     @Autowired
     SimpMessagingTemplate simpMessagingTemplate;
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p> Creates and serializes a {@link ProjectInviteMetadata} into a JSON string
+     * and saves it in notification metadata field. Then sends the notification via Websocket</p>
+     * */
     @Override
     public void sendProjectInviteNotification(List<User> receivers, User sender, Project project) {
         ObjectMapper mapper = new ObjectMapper();
-        Notification notification = new Notification();
+
 
         for (User receiver : receivers) {
             if (receiver == null) {
                 throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
             }
+            Notification notification = new Notification();
             notification.setSender(sender);
             notification.setReceiver(receiver);
             notification.setType(NotificationType.PROJECT_INVITE);
@@ -68,11 +81,17 @@ public class NotificationServiceImpl implements NotificationService{
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public List<NotificationDTO> getUnseenNotifications(String email) {
         return notificationMapper.toDtoList(notificationRepo.findByReceiverEmailAndSeenFalse(email));
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public long markAsSeen(long notificationId) {
         Optional<Notification> notificationOpt = notificationRepo.findById(notificationId);
@@ -84,6 +103,9 @@ public class NotificationServiceImpl implements NotificationService{
         return notificationRepo.save(notification).getId();
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public void sendIssueCreatedNotifications(IssueCreatedMetadata issueCreatedMetadata, Set<User> receivers) {
         ObjectMapper mapper = new ObjectMapper();
@@ -107,7 +129,7 @@ public class NotificationServiceImpl implements NotificationService{
             NotificationDTO notificationDto = notificationMapper.toDto(notificationRepo.save(notification));
             simpMessagingTemplate.convertAndSendToUser(
                     receiver.getEmail(),
-                    "queue/notifications",
+                    "/queue/notifications",
                     notificationDto
             );
         }

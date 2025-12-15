@@ -3,7 +3,6 @@ package com.example.projectCommunity.services;
 import com.example.projectCommunity.DTOs.requests.SendMessageRequest;
 import com.example.projectCommunity.DTOs.response.ChatDTO;
 import com.example.projectCommunity.DTOs.response.MessageDTO;
-import com.example.projectCommunity.DTOs.response.ResponseDTO;
 import com.example.projectCommunity.constants.MessageConstants;
 import com.example.projectCommunity.exceptions.ChatNotFoundException;
 import com.example.projectCommunity.exceptions.UserNotFoundException;
@@ -12,7 +11,6 @@ import com.example.projectCommunity.mappers.MessageMapper;
 import com.example.projectCommunity.mappers.UserMapper;
 import com.example.projectCommunity.models.chat.Chat;
 import com.example.projectCommunity.models.message.Message;
-import com.example.projectCommunity.models.project.Project;
 import com.example.projectCommunity.models.user.User;
 import com.example.projectCommunity.repos.ChatRepo;
 import com.example.projectCommunity.repos.MessageRepo;
@@ -20,17 +18,19 @@ import com.example.projectCommunity.repos.ProjectRepo;
 import com.example.projectCommunity.repos.UserRepo;
 import com.example.projectCommunity.services.serviceUtils.ServiceUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of {@link ChatService}.
+ * */
 @Service
 public class ChatServiceImpl implements ChatService {
+
+    //Repos
     @Autowired
     private ChatRepo chatRepo;
     @Autowired
@@ -39,15 +39,22 @@ public class ChatServiceImpl implements ChatService {
     private ProjectRepo projectRepo;
     @Autowired
     private MessageRepo messageRepo;
+
+    //Mappers
     @Autowired
     private MessageMapper messageMapper;
     @Autowired
     private ChatMapper chatMapper;
     @Autowired
     private UserMapper userMapper;
+
+    //Messaging
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public MessageDTO sendMessage(SendMessageRequest sendMessageRequest, String email) {
         Chat chat = chatRepo.findById(sendMessageRequest.getChatId());
@@ -68,7 +75,7 @@ public class ChatServiceImpl implements ChatService {
         Message savedMessage = messageRepo.save(message);
         MessageDTO messageDTO = messageMapper.toDto(savedMessage);
 
-        //Send the message to connected users throw websocket
+        //Send the message to connected users via Websocket
         simpMessagingTemplate.convertAndSend(
                 "/topic/chat/" + messageDTO.getChatId(),
                 messageDTO
@@ -77,6 +84,9 @@ public class ChatServiceImpl implements ChatService {
         return messageDTO;
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public ChatDTO fetchActiveChat(long projectId, String email) {
         User user = userRepo.findByEmail(email);

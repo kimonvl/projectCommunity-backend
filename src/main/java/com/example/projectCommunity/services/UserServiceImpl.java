@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+
+
+/**
+ * Implementation of {@link ProjectService}.
+ * */
 @Service
 public class UserServiceImpl implements UserService{
     @Autowired
@@ -15,6 +20,9 @@ public class UserServiceImpl implements UserService{
     @Autowired
     UserMapper userMapper;
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public List<UserDTO> searchUsersByEmail(String emailQuery, long projectId) {
         List<User> users = userRepo.searchAvailableUsers(emailQuery, projectId);

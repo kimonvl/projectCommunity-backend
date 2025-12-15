@@ -27,6 +27,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementation of {@link IssueService}.
+ * */
 @Service
 public class IssueServiceImpl implements IssueService{
     @Autowired
@@ -43,12 +46,19 @@ public class IssueServiceImpl implements IssueService{
     NotificationService notificationService;
 
 
+    /**
+     * {@inheritDoc}
+     * <p>Sends a notification to the participants of the project</p>
+     * */
     @Override
     public IssueDTO createIssue(CreateIssueRequest createIssueRequest, String email) {
         User user = userRepo.findByEmail(email);
         Project project;
         Issue issue = new Issue();
         IssueDTO issueDTO;
+        if(user == null) {
+            throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
+        }
         Optional<Project> projectOpt = projectRepo.findById(createIssueRequest.getProjectId());
         if (projectOpt.isEmpty()) {
             throw new ProjectNotFoundException(MessageConstants.PROJECT_NOT_FOUND);
@@ -70,12 +80,18 @@ public class IssueServiceImpl implements IssueService{
         return issueDTO;
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public List<IssueDTO> getProjectIssues(long projectId, String email) {
         ServiceUtils.checkAccessToProject(projectRepo, projectId, email, MessageConstants.USER_NOT_IN_PROJECT);
         return issueMapper.toDtoList(issueRepo.findByProjectId(projectId));
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public UserDTO assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(assignUserToIssueRequest.getIssueId());
@@ -92,12 +108,16 @@ public class IssueServiceImpl implements IssueService{
         ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assigneeUser.getEmail(), MessageConstants.USER_NOT_IN_PROJECT);
         ServiceUtils.checkAccessToProject(projectRepo, issue.getProject().getId(), assignedUser.getEmail(), MessageConstants.INVITED_USER_NOT_IN_PROJECT);
 
-        issue.getAssignedUsers().add(assignedUser);
-
+        if (!issue.getAssignedUsers().contains(assignedUser)) {
+            issue.getAssignedUsers().add(assignedUser);
+        }
         issueRepo.save(issue);
         return userMapper.toDto(assignedUser);
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public IssueDTO getIssueDetails(long issueId, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(issueId);
@@ -109,6 +129,9 @@ public class IssueServiceImpl implements IssueService{
         return issueMapper.toDto(issue);
     }
 
+    /**
+     * {@inheritDoc}
+     * */
     @Override
     public IssueDTO changeStatus(ChangeIssueStatusRequest changeIssueStatusRequest, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(changeIssueStatusRequest.getIssueId());
@@ -121,8 +144,11 @@ public class IssueServiceImpl implements IssueService{
         return issueMapper.toDto(issueRepo.save(issue));
     }
 
+    /**
+     * {@inheritDoc}
+     * */
+    @Override
     public Long deleteIssue(long issueId, String email) {
-        System.out.println(issueId);
         User user = userRepo.findByEmail(email);
         Optional<Issue> issueOpt = issueRepo.findById(issueId);
         if (issueOpt.isEmpty()) {
