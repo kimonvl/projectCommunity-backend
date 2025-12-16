@@ -32,18 +32,25 @@ import java.util.Optional;
  * */
 @Service
 public class IssueServiceImpl implements IssueService{
+
+    // Repos
     @Autowired
     IssueRepo issueRepo;
     @Autowired
-    IssueMapper issueMapper;
-    @Autowired
     UserRepo userRepo;
     @Autowired
-    UserMapper userMapper;
-    @Autowired
     ProjectRepo projectRepo;
+
+    // Services
     @Autowired
     NotificationService notificationService;
+
+    // Mappers
+    @Autowired
+    IssueMapper issueMapper;
+    @Autowired
+    UserMapper userMapper;
+
 
 
     /**
@@ -93,7 +100,7 @@ public class IssueServiceImpl implements IssueService{
      * {@inheritDoc}
      * */
     @Override
-    public UserDTO assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email) {
+    public IssueDTO assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email) {
         Optional<Issue> issueOpt = issueRepo.findById(assignUserToIssueRequest.getIssueId());
         Optional<User> assignedUserOpt = userRepo.findById(assignUserToIssueRequest.getUserId());
         User assigneeUser = userRepo.findByEmail(email);
@@ -111,8 +118,7 @@ public class IssueServiceImpl implements IssueService{
         if (!issue.getAssignedUsers().contains(assignedUser)) {
             issue.getAssignedUsers().add(assignedUser);
         }
-        issueRepo.save(issue);
-        return userMapper.toDto(assignedUser);
+        return issueMapper.toDto(issueRepo.save(issue));
     }
 
     /**

@@ -23,14 +23,20 @@ import java.util.Optional;
  * */
 @Service
 public class ProjectServiceImpl implements ProjectService{
+
+    // Repos
     @Autowired
     private UserRepo userRepo;
     @Autowired
     private ProjectRepo projectRepo;
-    @Autowired
-    private ProjectMapper projectMapper;
+
+    // Services
     @Autowired
     private NotificationService notificationService;
+
+    // Mappers
+    @Autowired
+    private ProjectMapper projectMapper;
 
     /**
      * {@inheritDoc}

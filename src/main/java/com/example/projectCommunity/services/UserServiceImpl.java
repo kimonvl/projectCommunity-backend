@@ -15,8 +15,12 @@ import java.util.List;
  * */
 @Service
 public class UserServiceImpl implements UserService{
+
+    // Repos
     @Autowired
     UserRepo userRepo;
+
+    // Mappers
     @Autowired
     UserMapper userMapper;
 

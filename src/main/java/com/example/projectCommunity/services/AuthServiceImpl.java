@@ -23,12 +23,19 @@ import org.springframework.stereotype.Service;
  * */
 @Service
 public class AuthServiceImpl implements AuthService{
+    // Repos
     @Autowired
     private UserRepo userRepo;
+
+    // Services
     @Autowired
     private JwtService jwtService;
+
+    // Mappers
     @Autowired
     private UserMapper userMapper;
+
+    // Other
     @Autowired
     private AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);

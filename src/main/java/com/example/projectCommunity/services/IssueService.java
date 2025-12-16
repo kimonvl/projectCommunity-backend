@@ -46,9 +46,9 @@ public interface IssueService {
      *
      * @param assignUserToIssueRequest payload containing the target issue identifier and the assigned user identifier
      * @param email email address of the user performing the assignment
-     * @return the assigned {@link UserDTO}
+     * @return the {@link IssueDTO} with the assigned user
      * */
-    UserDTO assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email);
+    IssueDTO assignUser(AssignUserToIssueRequest assignUserToIssueRequest, String email);
 
     /**
      * Retrieves the details of an issue based on its identifier.

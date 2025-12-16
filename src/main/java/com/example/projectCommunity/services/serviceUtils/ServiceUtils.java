@@ -12,6 +12,10 @@ import com.example.projectCommunity.repos.ProjectRepo;
  * </ul>
  * */
 public class ServiceUtils {
+    private ServiceUtils() {
+        // prevent instantiation
+    }
+
     /**
      * Checks if a user has access to a project based on the user's email
      * and the project's identifier.

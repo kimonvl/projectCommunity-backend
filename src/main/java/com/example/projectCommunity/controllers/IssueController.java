@@ -42,9 +42,9 @@ public class IssueController {
     /**
      * Creates an {@link Issue} for a specific {@link Project}.
      *
-     * @param createIssueRequest a {@link CreateIssueRequest} with the request's data: title, description, project id.
-     * @param principal the authenticated user's data, that is sending the message,  provided by Spring Security.
-     * @return http response containing the created {@link IssueDTO}.
+     * @param createIssueRequest a {@link CreateIssueRequest} with the request's data: title, description, project id
+     * @param principal the authenticated user's data, that is sending the message,  provided by Spring Security
+     * @return http response containing the created {@link IssueDTO}
      * */
     @PostMapping("/create")
     ResponseEntity<ResponseDTO<IssueDTO>> createIssue(@RequestBody CreateIssueRequest createIssueRequest, Principal principal) {
@@ -54,9 +54,9 @@ public class IssueController {
     /**
      * Retrieves the {@link Issue}s of a specific {@link Project}.
      *
-     * @param projectId identifier of the project whose issues are requested.
-     * @param principal the authenticated user's data, that requests the issues,  provided by Spring Security.
-     * @return http response containing the retrieved list of {@link IssueDTO}.
+     * @param projectId identifier of the project whose issues are requested
+     * @param principal the authenticated user's data, that requests the issues,  provided by Spring Security
+     * @return http response containing the retrieved list of {@link IssueDTO}
      * */
     @GetMapping("/getProjectIssues/{projectId}")
     ResponseEntity<ResponseDTO<List<IssueDTO>>> getProjectIssues(@PathVariable long projectId, Principal principal) {
@@ -66,21 +66,21 @@ public class IssueController {
     /**
      * Assigns a {@link User} to a specific {@link Issue}.
      *
-     * @param assignUserToIssueRequest a {@link AssignUserToIssueRequest} with the request's data: issue id, user id.
-     * @param principal the authenticated user's data, that is performing the assignation,  provided by Spring Security.
-     * @return http response containing the assigned {@link User}.
+     * @param assignUserToIssueRequest a {@link AssignUserToIssueRequest} with the request's data: issue id, user id
+     * @param principal the authenticated user's data, that is performing the assignation,  provided by Spring Security
+     * @return http response containing the {@link IssueDTO} with the assigned user
      * */
     @PostMapping("/assignUser")
-    ResponseEntity<ResponseDTO<UserDTO>> assignUser(@RequestBody AssignUserToIssueRequest assignUserToIssueRequest, Principal principal) {
+    ResponseEntity<ResponseDTO<IssueDTO>> assignUser(@RequestBody AssignUserToIssueRequest assignUserToIssueRequest, Principal principal) {
         return ResponseFactory.createSuccessResponse(issueService.assignUser(assignUserToIssueRequest, principal.getName()), MessageConstants.USER_ASSIGNED_TO_ISSUE, HttpStatus.CREATED);
     }
 
     /**
      * Retrieves the details of a specific {@link Issue}.
      *
-     * @param issueId identifier of the requested issue.
-     * @param principal the authenticated user's data, that requests the issue,  provided by Spring Security.
-     * @return http response containing the retrieved {@link IssueDTO}.
+     * @param issueId identifier of the requested issue
+     * @param principal the authenticated user's data, that requests the issue,  provided by Spring Security
+     * @return http response containing the retrieved {@link IssueDTO}
      * */
     @GetMapping("/getIssueDetails/{issueId}")
     ResponseEntity<ResponseDTO<IssueDTO>> getIssueDetails(@PathVariable long issueId, Principal principal) {
@@ -90,9 +90,9 @@ public class IssueController {
     /**
      * Changes the status of a specific {@link Issue}.
      *
-     * @param changeIssueStatusRequest a {@link ChangeIssueStatusRequest} with the request's data: issue id, status.
-     * @param principal the authenticated user's data, that changed the status,  provided by Spring Security.
-     * @return http response containing the updated {@link IssueDTO}.
+     * @param changeIssueStatusRequest a {@link ChangeIssueStatusRequest} with the request's data: issue id, status
+     * @param principal the authenticated user's data, that changed the status,  provided by Spring Security
+     * @return http response containing the updated {@link IssueDTO}
      * */
     @PostMapping("/changeStatus")
     ResponseEntity<ResponseDTO<IssueDTO>> changeStatus(@RequestBody ChangeIssueStatusRequest changeIssueStatusRequest, Principal principal) {
@@ -102,9 +102,9 @@ public class IssueController {
     /**
      * Deletes a specific {@link Issue}.
      *
-     * @param issueId identifier of the issue to be deleted.
-     * @param principal the authenticated user's data, that deletes the issue,  provided by Spring Security.
-     * @return http response containing the identifier of the deleted issue.
+     * @param issueId identifier of the issue to be deleted
+     * @param principal the authenticated user's data, that deletes the issue,  provided by Spring Security
+     * @return http response containing the identifier of the deleted issue
      * */
     @PostMapping("/delete")
     ResponseEntity<ResponseDTO<Long>> deleteIssue(@RequestBody long issueId, Principal principal) {

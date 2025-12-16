@@ -74,4 +74,15 @@ public class GlobalExceptionHandler {
     ResponseEntity<ResponseDTO<?>> handleNotificationNotFound(NotificationNotFoundException exception){
         return new ResponseEntity<>(new ResponseDTO<>(null, exception.getMessage(), false), HttpStatus.BAD_REQUEST);
     }
+
+    /**
+     * Handles cases where the user refers to a notification that doesn't exist.
+     *
+     * @param exception the thrown {@link NotificationNotFoundException}
+     * @return a response with a message indication the absence of the notification resource
+     * */
+    @ExceptionHandler(UserNoAccessException.class)
+    ResponseEntity<ResponseDTO<?>> handleUserNoAccessException(UserNoAccessException exception){
+        return new ResponseEntity<>(new ResponseDTO<>(null, exception.getMessage(), false), HttpStatus.BAD_REQUEST);
+    }
 }
