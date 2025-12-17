@@ -47,6 +47,7 @@ public class Notification {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     /** Optional JSON metadata associated with the notification, depending on the type */
-    @Lob
-    private String metadata;
+    @Convert(converter = NotificationMetadataConverter.class)
+    @Column(columnDefinition = "TEXT")
+    private NotificationMetadata metadata;
 }

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class IssueCreatedMetadata {
+public class IssueCreatedMetadata implements NotificationMetadata {
 
     /** Email of the creator of the issue */
     private String creatorEmail;

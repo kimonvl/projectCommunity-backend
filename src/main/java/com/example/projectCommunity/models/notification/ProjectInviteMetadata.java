@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProjectInviteMetadata {
+public class ProjectInviteMetadata implements NotificationMetadata{
 
     /** Identifier of the target project */
     private long projectId;

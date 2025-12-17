@@ -58,20 +58,8 @@ public class NotificationServiceImpl implements NotificationService{
             if (receiver == null) {
                 throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
             }
-            Notification notification = new Notification();
-            notification.setSender(sender);
-            notification.setReceiver(receiver);
-            notification.setType(NotificationType.PROJECT_INVITE);
-            notification.setMessage(sender.getEmail() + " invites you to his project");
-            ProjectInviteMetadata metadata = new ProjectInviteMetadata();
-            metadata.setProjectId(project.getId());
-            metadata.setProjectTitle(project.getTitle());
-            metadata.setOwnerEmail(sender.getEmail());
-            try {
-                notification.setMetadata(mapper.writeValueAsString(metadata));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            Notification notification = getNotification(sender, project, receiver);
+
             notification = notificationRepo.save(notification);
             simpMessagingTemplate.convertAndSendToUser(
                     receiver.getEmail(),
@@ -79,6 +67,20 @@ public class NotificationServiceImpl implements NotificationService{
                     notificationMapper.toDto(notification)
             );
         }
+    }
+
+    private static Notification getNotification(User sender, Project project, User receiver) {
+        Notification notification = new Notification();
+        notification.setSender(sender);
+        notification.setReceiver(receiver);
+        notification.setType(NotificationType.PROJECT_INVITE);
+        notification.setMessage(sender.getEmail() + " invites you to his project");
+        ProjectInviteMetadata metadata = new ProjectInviteMetadata();
+        metadata.setProjectId(project.getId());
+        metadata.setProjectTitle(project.getTitle());
+        metadata.setOwnerEmail(sender.getEmail());
+        notification.setMetadata(metadata);
+        return notification;
     }
 
     /**
@@ -108,7 +110,6 @@ public class NotificationServiceImpl implements NotificationService{
      * */
     @Override
     public void sendIssueCreatedNotifications(IssueCreatedMetadata issueCreatedMetadata, Set<User> receivers) {
-        ObjectMapper mapper = new ObjectMapper();
         User sender = userRepo.findByEmail(issueCreatedMetadata.getCreatorEmail());
         for (User receiver : receivers) {
             if (receiver == null) {
@@ -121,11 +122,8 @@ public class NotificationServiceImpl implements NotificationService{
             notification.setSender(sender);
             notification.setReceiver(receiver);
             notification.setType(NotificationType.ISSUE_CREATED);
-            try {
-                notification.setMetadata(mapper.writeValueAsString(issueCreatedMetadata));
-            } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
-            }
+            notification.setMetadata(issueCreatedMetadata);
+
             NotificationDTO notificationDto = notificationMapper.toDto(notificationRepo.save(notification));
             simpMessagingTemplate.convertAndSendToUser(
                     receiver.getEmail(),
