@@ -51,9 +51,6 @@ public class NotificationServiceImpl implements NotificationService{
      * */
     @Override
     public void sendProjectInviteNotification(List<User> receivers, User sender, Project project) {
-        ObjectMapper mapper = new ObjectMapper();
-
-
         for (User receiver : receivers) {
             if (receiver == null) {
                 throw new UserNotFoundException(MessageConstants.USER_NOT_FOUND);
